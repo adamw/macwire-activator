@@ -4,7 +4,7 @@ import play.Project._
 
 object ApplicationBuild extends Build {
 
-  val appName         = "hello-play"
+  val appName         = "macwire-activator"
   val appVersion      = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(
@@ -15,19 +15,21 @@ object ApplicationBuild extends Build {
     //javaEbean, // Java Ebean plugin
     //javaJpa,   // Java JPA plugin
     //filters,   // A set of built-in filters
-    javaCore,  // The core Java API
+    //javaCore,  // The core Java API
   
     // WebJars pull in client-side web libraries
     "org.webjars" %% "webjars-play" % "2.1.0-3",
-    "org.webjars" % "bootstrap" % "2.3.1"
+    "org.webjars" % "bootstrap" % "2.3.1",
   
     // Add your own project dependencies in the form:
     // "group" % "artifact" % "version"
+    "com.softwaremill.macwire" %% "core" % "0.4-SNAPSHOT"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here
-    scalaVersion := "2.10.2"
+    scalaVersion := "2.10.2",
+    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
   )
 
 }

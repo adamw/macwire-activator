@@ -3,11 +3,34 @@
 @main("Welcome to Play Framework") {
 
     <script type='text/javascript' src='@routes.Assets.at("javascripts/index.min.js")'></script>
-    
+
     <div class="well">
         <h1>@message</h1>
     </div>
 
-    <button id="getMessageButton">Get JSON Message</button>
+    <div class="alert alert-success" style="display: none" id="greetingAdded">
+        <p><strong>Greeting added!</strong> Refresh the page to see it in action.</p>
+    </div>
 
+    <form class="form-horizontal">
+        <fieldset>
+            <legend>Add a new greeting</legend>
+
+            <!-- Text input-->
+            <div class="control-group">
+                <label class="control-label">Greeting text:</label>
+                <div class="controls">
+                    <input id="greetingText" name="greetingText" type="text" placeholder="Enter text here" class="input-xlarge">
+                </div>
+            </div>
+
+            <!-- Button -->
+            <div class="control-group">
+                <label class="control-label">&nbsp;</label>
+                <div class="controls">
+                    <button id="addGreeting" name="addGreeting" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
 }

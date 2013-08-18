@@ -6,7 +6,7 @@ import play.api.Routes
 
 case class Message(value: String)
 
-object MessageController extends Controller {
+class MessageController extends Controller {
 
   implicit val fooWrites = Json.writes[Message]
 

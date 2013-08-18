@@ -23,7 +23,8 @@ object ApplicationBuild extends Build {
   
     // Add your own project dependencies in the form:
     // "group" % "artifact" % "version"
-    "com.softwaremill.macwire" %% "core" % "0.4-SNAPSHOT"
+    "com.softwaremill.macwire" %% "core" % "0.4-SNAPSHOT",
+    "org.mockito" % "mockito-core" % "1.9.5" % "test"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(

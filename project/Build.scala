@@ -23,14 +23,13 @@ object ApplicationBuild extends Build {
   
     // Add your own project dependencies in the form:
     // "group" % "artifact" % "version"
-    "com.softwaremill.macwire" %% "core" % "0.4-SNAPSHOT",
+    "com.softwaremill.macwire" %% "core" % "0.4",
     "org.mockito" % "mockito-core" % "1.9.5" % "test"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here
-    scalaVersion := "2.10.2",
-    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+    scalaVersion := "2.10.2"
   )
 
 }

@@ -21,16 +21,22 @@
     <p>
         There are three main parts: the <code>database</code> module, the <code>greetings</code> module and the
         frontend part, consisting of <code>controllers</code> and the html pages. We'll explore each module in detail
-        in the following sections, focusing on Dependency Injection, using <code>traits</code> as modules,
-        <a href="https://github.com/adamw/macwire">MacWire</a> and integration with the Play Framework.
+        in the following sections, focusing on <strong>Dependency Injection</strong>, using <code>trait</code>s as modules,
+        MacWire and integration with the Play Framework.
+    </p>
+
+    <p>
+        To see how the application works, just visit <a href="http://localhost:9000" target="_blank">http://localhost:9000</a>
+        once the application has been compiled and the server started.
+        Check <a href="#run" class="shortcut">Run</a> to see the server status.
     </p>
 </div>
 <div>
     <h2>The database package</h2>
 
     <p>
-        The main trait in the <a href="#code/app/services/database" class="shortcut">database</a> package is the
-        <a href="#code/app/services/database/Database.scala" class="shortcut">Database</a> trait. It defines a
+        The main trait in the <a href="#code/app/services/database" class="shortcut">database</a> package is
+        <a href="#code/app/services/database/Database.scala" class="shortcut">Database</a>. It defines a
         very simple interface for storing <code>String</code> key-pair values. It has a single implementation,
         <a href="#code/app/services/database/InMemoryDatabase.scala" class="shortcut">InMemoryDatabase</a>,
         which uses a <code>ConcurrentHashMap</code> for the actual storage.
@@ -38,17 +44,21 @@
 
     <p>
         Note that the <code>InMemoryDatabase</code> has a dependency: an
-        <a href="#code/app/services/database/AuditLogger.scala" class="shortcut">AuditLogger</a>, which simply
-        prints out information about each operation. A real-world implementation could, for example, use a RDBMS for
-        to implement the database, and write to a file with the current user's username for the audit.
+        <a href="#code/app/services/database/AuditLogger.scala" class="shortcut">AuditLogger</a>. This implementation
+        of the audit simply prints out information about each operation. A real-world implementation could,
+        for example, use a RDBMS to implement the database, and write the audit to a file, including the current
+        user's username with each entry.
     </p>
+
+    <h3>Dependency Injection</h3>
 
     <p>
         The fact that <code>InMemoryDatabase</code> is dependent on <code>AuditLogger</code> is expressed using a
-        constructor parameter. And this is the main idea behind <em>Dependency Injection</em>: instead of creating a
+        constructor parameter. And this is the main idea behind <strong>Dependency Injection</strong>: instead of creating a
         specific implementation of an <code>AuditLogger</code> inside the <code>InMemoryDatabase</code> class using
         <code>new</code>, we only specify that we want "some" implementation. This decouples the two classes, as we
-        can now use <em>any</em> <code>AuditLogger</code> implementation, without the need to change the database.
+        can now use <strong>any</strong> <code>AuditLogger</code> implementation, without the need to change the
+        code of the <code>InMemoryDatabase</code> class.
     </p>
 </div>
 <div>
@@ -63,8 +73,10 @@
     <p>
         In our case, and as is most common, creating the object graph is just calling <code>new</code> with
         the right parameters. Here we additionally constrain the type of the <code>database</code> value to be
-        <code>Database</code>, so that clients do not see the underlying implementation type.
+        <code>Database</code>, so that clients do not see the underlying more specific implementation type.
     </p>
+
+    <h3>Why lazy?</h3>
 
     <p>
         We use <code>lazy val</code>s, so that we don't have to worry about initialization order. When using
@@ -72,13 +84,17 @@
         <code>NullPointerException</code>s, hence if possible just use <code>lazy val</code>s or <code>def</code>s.
     </p>
 
+    <h3>Trait-modules are optional</h3>
+
     <p>
-        In smaller applications, we could define the <em>wiring</em> (how the object graph is constructed) in one place
-        for all packages, however as the codebase size grows, it can become hard to manage. Hence
+        In smaller applications, we could define the <strong>wiring</strong> (how the object graph is constructed) in one
+        trait/object for all packages, however as the codebase size grows, it can become hard to manage, hence splitting
+        into several "modules" may be a good idea. The <strong>cake pattern</strong> takes this idea even further,
+        putting also class definitions into the traits.
     </p>
 
     <p>
-        Note that creating such traits is entirely optional, and is not a part of the "core" <em>Dependency Injection</em>
+        Note that creating such traits is entirely optional, and is not a part of the "core" <strong>Dependency Injection</strong>
         pattern. It is simply a way of using Scala's traits to make the code more manageable, and the pattern easier
         to use.
     </p>
@@ -87,7 +103,7 @@
     <h2>The greetings package</h2>
 
     <p>
-        The classes in the greetings package are constructed in a similar way. The form a graph of dependencies (e.g.
+        The classes in the greetings package are constructed in a similar way. They form a graph of dependencies (e.g.
         <a href="#code/app/services/greetings/RandomGreetingsService.scala" class="shortcut">RandomGreetingsService</a> depends on
         <a href="#code/app/services/greetings/RandomItemChooser.scala" class="shortcut">RandomItemChooser</a>, and the
         <a href="#code/app/services/greetings/GreetingsSaver.scala" class="shortcut">GreetingsSaver</a> depends on an
@@ -108,24 +124,29 @@
         module-level dependencies and combine several modules using trait composition.
     </p>
 
+    <h3>MacWire</h3>
+
     <p>
         The second difference is in the way the object instances are defined: using the <code>wire</code> macro. A macro is
-        a piece of Scala code which is executed at <em>compile time</em>, generating some code. The code is then type-checked
+        a piece of Scala code which is executed at <strong>compile time</strong>, generating Scala code. The code is then type-checked
         and further compiled using standard rules. The <code>wire</code> macro is part of the MacWire library.
     </p>
 
     <p>
         The <code>wire</code> macro will try to generate code to create a new instance of the given class, using as parameters
-        values found in the current scope. For example, <code>wire[RandomGreetingsService]</code> will expand to
-        <code>new RandomGreetingsService(database, randomItemChooser)</code>. Note that this is all done at compile-time - there's
-        no run-time component here! At run-time, all the JVM will see is a <code>new</code> invocation. Moreover, we get
+        values found in the current scope. For example,
+        <pre><code>wire[RandomGreetingsService]</code></pre>
+        will expand to
+        <pre><code>new RandomGreetingsService(database, randomItemChooser)</code></pre>
+        Note that this is all done at compile-time - there's
+        no run-time component here! At run-time, all the JVM will see is <code>new</code> invocation. And we get
         compile-time checking that all dependencies of a class are satisfied!
     </p>
 
     <p>
         Wiring using the macro can be useful when classes have several dependencies and enumerating all construction parameters
-        would be tedious. Moreover, the macro can be used only for some objects, others may be created by hand or using some
-        custom code.
+        would be tedious. Moreover, the macro can be used only for some objects, others may be created by hand or using
+        more complex custom code.
     </p>
 </div>
 <div>
@@ -155,15 +176,17 @@
     <h2>Integrating the controllers</h2>
 
     <p>
-        The controllers are wired using the approach we've seen before in the
-        <a href="#code/app/Application.scala" class="shortcut">Application</a> object. The object depends on the two
-        modules we defined earlier, hence when wiring the controllers, the necessary parameters are available.
+        The controllers are wired using the approach we've seen before: see the
+        <a href="#code/app/Application.scala" class="shortcut">Application</a> object. The object depends on (extends)
+        the two modules we defined earlier, hence when wiring the controllers, the necessary parameters are available.
     </p>
 
     <p>
         The last missing piece in the puzzle is how to tell Play how to obtain instances of the controllers? Firstly, we
         have to reference controllers in the  <a href="#code/conf/routes" class="shortcut">conf/routes</a> file with the
-        <code>@</code> prefix. This will cause Play to delegate looking up instances of controllers to a special class.
+        <code>@</code> prefix, e.g.:
+        <pre><code>@controllers.MainController.index()</code></pre>
+        This will cause Play to delegate looking up instances of controllers to a special class.
     </p>
 
     <p>
@@ -172,19 +195,22 @@
         needs to be looked up. Hence we need a map translating classes to instances.
     </p>
 
+    <h3>Instance map</h3>
+
     <p>
         MacWire contains a utility macro to generate such a map: <code>valsByClass(someObject)</code>. The macro
         will generate (again at compile-time) a map of all the <code>val</code>s in the given object, keyed by their
         classes. Finally, we are using the <code>InstanceLookup</code> helper class from MacWire, to be able to lookup
-        instances taking into account super-classes and traits (e.g., our database instance will be keyed in the map using the
-        <code>InMemoryDatabase</code> class, but we are looking it up using the trait it implements, <code>Database</code>).
+        instances taking into account super-classes and traits (e.g., our database instance will be keyed in the map generated
+        by the macro by the <code>InMemoryDatabase</code> class, but we could want to look it up using the trait it implements,
+        <code>Database</code>).
     </p>
 </div>
 <div>
     <h2>Testing</h2>
 
     <p>
-        A very important aspect of our application is testing. One of the main benefits of <em>Dependency Injection</em>
+        A very important aspect of our application is testing. One of the main benefits of <strong>Dependency Injection</strong>
         is the ease with which you can test components in isolation, passing in alternative implementations of any
         of the class dependencies.
     </p>
@@ -197,6 +223,8 @@
         We can then verify that the desired interactions happened.
     </p>
 
+    <h3>Integration testing</h3>
+
     <p>
         Using the trait-as-modules approach, it is also possible to integration-test whole packages, by instantiating the
         module trait. Alternative implementations can be then provided by overriding the appropriate <code>val</code>s.
@@ -206,7 +234,7 @@
     <h2>The End</h2>
 
     <p>
-        And that's it! We have now a simple Play application, which uses <em>Dependency Injection</em> for wiring the
+        And that's it! We now have a simple Play application, which uses <strong>Dependency Injection</strong> for wiring the
         services and controllers.
     </p>
 
@@ -221,7 +249,9 @@
 
     <ul>
         <li><a href="http://www.playframework.com/documentation" target="_blank">Play Documentation</a></li>
+        <li><a href="http://stackoverflow.com/questions/130794/what-is-dependency-injection" target="_blank">SO: What is dependency injection?</a></li>
         <li><a href="https://github.com/adamw/macwire" target="_blank">The MacWire project on GitHub</a></li>
+        <li><a href="http://www.warski.org/blog/2010/12/di-in-scala-cake-pattern/" target="_blank">Cake pattern</a></li>
         <li><a href="https://code.google.com/p/mockito/" target="_blank">Mockito - Simple Mocking Framework</a></li>
     </ul>
 </div>

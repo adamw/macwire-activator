@@ -32,7 +32,7 @@
         The main trait in the <a href="#code/app/services/database" class="shortcut">database</a> package is the
         <a href="#code/app/services/database/Database.scala" class="shortcut">Database</a> trait. It defines a
         very simple interface for storing <code>String</code> key-pair values. It has a single implementation,
-        <a href="#code/app/services/database/InMemoryDatabase.scala" class="shortcut">InMemoryDatabase.scala</a>,
+        <a href="#code/app/services/database/InMemoryDatabase.scala" class="shortcut">InMemoryDatabase</a>,
         which uses a <code>ConcurrentHashMap</code> for the actual storage.
     </p>
 
@@ -90,8 +90,8 @@
         The classes in the greetings package are constructed in a similar way. The form a graph of dependencies (e.g.
         <a href="#code/app/services/greetings/RandomGreetingsService.scala" class="shortcut">RandomGreetingsService</a> depends on
         <a href="#code/app/services/greetings/RandomItemChooser.scala" class="shortcut">RandomItemChooser</a>, and the
-        <a href="#code/app/services/greetings/GreetingSaver.scala" class="shortcut">GreetingSaver</a> depends on an
-        instance of a <a href="#code/app/services/database/Database.scala" class="shortcut">Database.scala</a>.
+        <a href="#code/app/services/greetings/GreetingsSaver.scala" class="shortcut">GreetingsSaver</a> depends on an
+        instance of a <a href="#code/app/services/database/Database.scala" class="shortcut">Database</a>.
     </p>
 
     <p>
@@ -132,22 +132,22 @@
     <h2>The controllers</h2>
 
     <p>
-        There are two <a href="#code/app/services/controllers" class="shortcut">controllers</a>. Unlike normal Play controllers,
+        There are two <a href="#code/app/controllers" class="shortcut">controllers</a>. Unlike normal Play controllers,
         these are not <code>object</code>s, but <code>class</code>es, with some dependencies declared in constructors. Apart
         from that, the controllers are quite regular.
     </p>
 
     <p>
-        The first controller, <a href="#code/app/services/controllers/MainController.scala" class="shortcut">MainController</a>,
+        The first controller, <a href="#code/app/controllers/MainController.scala" class="shortcut">MainController</a>,
         is used to get a random greeting. The second controller,
-        <a href="#code/app/services/controllers/AddGreetingController.scala" class="shortcut">AddGreetingController</a>,
+        <a href="#code/app/controllers/AddGreetingController.scala" class="shortcut">AddGreetingController</a>,
         adds a new greeting to the database.
     </p>
 
     <p>
         The frontend for the application is also quite standard, take a look at
         <a href="#code/app/views" class="shortcut">app/views</a> and
-        <a href="#code/assets/javascripts/index.js" class="shortcut">assets/javascripts/index.js</a> if you are curious, but
+        <a href="#code/app/assets/javascripts/index.js" class="shortcut">assets/javascripts/index.js</a> if you are curious, but
         there's nothing Dependency Injection/MacWire-specific in these files.
     </p>
 </div>

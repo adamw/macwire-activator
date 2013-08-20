@@ -1,116 +1,229 @@
 <html>
 <head>
-    <title>Hello Play Framework - Activator Template</title>
+    <title>No-framework Dependency Injection with MacWire and Play Activator</title>
 </head>
 <body>
 <div>
-    <p>You've just created a simple Play Framework application! Now lets explore the code and make some changes.</p>
+    <p>You've just created the Macwire + Play Framework example application! Let's explore what's inside.</p>
 
-    <h2> View the App</h2>
+    <h2>Application overview</h2>
 
     <p>
-        Once the application has been compiled and the server started, your application can be accessed at: <a href="http://localhost:9000" target="_blank">http://localhost:9000</a><br/>
-        Check in <a href="#run" class="shortcut">Run</a> to see the server status.<br/>
-        When you make an HTTP request to that URL, the Play server figures out what code to execute which will handle the request and return a response.  In this application the request handler for requests to the root URL (e.g. "/") are handled by a Java Controller.  You can use Java and Scala to create your controllers.<br/>
-        Controllers asynchronously return HTTP responses of any content type (i.e. HTML, JSON, binary).  To see a JSON response produced by a Scala controller, click the "Get JSON Message" button.  This uses AJAX via jQuery to get data from the server and then display that on the web page.
+        The main functionality of the application is to greet the user using a random greeting from an in-memory database.
+        New greetings can be added by the user using a simple wbe form.
+    </p>
+
+    <p>
+        The task is quite simple, and the code is probably a bit too complicated for such a simple functionality, but it
+        should serve demo purposes well.
+    </p>
+
+    <p>
+        There are three main parts: the <code>database</code> module, the <code>greetings</code> module and the
+        frontend part, consisting of <code>controllers</code> and the html pages. We'll explore each module in detail
+        in the following sections, focusing on Dependency Injection, using <code>traits</code> as modules,
+        <a href="https://github.com/adamw/macwire">MacWire</a> and integration with the Play Framework.
     </p>
 </div>
 <div>
-    <h2> Code Overview</h2>
-
-    <p>A Play application has very few required files.  This example tries to illustrate a number of key concepts in Play so it has a handful of files to explain.  The <a href="#code/app" class="shortcut">app</a> directory contains the application's source code, including Java, Scala, server-side templates, and server-side compiled assets for the browser (e.g. JavaScript, CoffeeScript, LESS).  The <a href="#code/conf" class="shortcut">conf</a> directory contains the <a href="#code/conf/application.conf" class="shortcut">application.conf</a> config file and the <a href="#code/conf/routes" class="shortcut">routes</a> file</a>.  The <a href="#code/project" class="shortcut">project</a> directory contains the SBT build information for the app.  The default place for static assets (e.g. images, HTML, CSS, JavaScript) is the <a href="#code/public" class="shortcut">public</a> directory.  Unit, functional, and integration tests (Java and Scala) go in the <a href="#code/test" class="shortcut">test</a> directory.</p>
-</div>
-<div>
-    <h2> HTTP Routing</h2>
+    <h2>The database package</h2>
 
     <p>
-        The <a href="#code/conf/routes" class="shortcut">routes</a> file contains mappings between HTTP request verbs &amp; paths and the code that controller method that handles the requests.  Route paths can be parametrized to support RESTful style URLs.  The following mapping will handle HTTP GET requests to "/" using the <strong>controllers.MainController.index</strong> method:
-        <pre><code>GET   /    controllers.MainController.index</code></pre>
-        You can try out the routing by first making a request to an unmatched route, like: <a href="http://localhost:9000/foo" target="_blank">http://localhost:9000/foo</a><br/>
-        This should produce an error because there isn't a route that matches the request.
-        Then edit the <a href="#code/conf/routes" class="shortcut">routes</a> to include a new route:
-        <pre><code>GET   /foo    controllers.MainController.index</code></pre>
-        Now retry the request and you should see the default index page.<br/>
-        By default the routes are compiled by Play so that they can be used in a type-safe way.  This prevents issues caused by incorrect URL usages.
-        <!-- todo: Learn more -->
+        The main trait in the <a href="#code/app/services/database" class="shortcut">database</a> package is the
+        <a href="#code/app/services/database/Database.scala" class="shortcut">Database</a> trait. It defines a
+        very simple interface for storing <code>String</code> key-pair values. It has a single implementation,
+        <a href="#code/app/services/database/InMemoryDatabase.scala" class="shortcut">InMemoryDatabase.scala</a>,
+        which uses a <code>ConcurrentHashMap</code> for the actual storage.
+    </p>
+
+    <p>
+        Note that the <code>InMemoryDatabase</code> has a dependency: an
+        <a href="#code/app/services/database/AuditLogger.scala" class="shortcut">AuditLogger</a>, which simply
+        prints out information about each operation. A real-world implementation could, for example, use a RDBMS for
+        to implement the database, and write to a file with the current user's username for the audit.
+    </p>
+
+    <p>
+        The fact that <code>InMemoryDatabase</code> is dependent on <code>AuditLogger</code> is expressed using a
+        constructor parameter. And this is the main idea behind <em>Dependency Injection</em>: instead of creating a
+        specific implementation of an <code>AuditLogger</code> inside the <code>InMemoryDatabase</code> class using
+        <code>new</code>, we only specify that we want "some" implementation. This decouples the two classes, as we
+        can now use <em>any</em> <code>AuditLogger</code> implementation, without the need to change the database.
     </p>
 </div>
 <div>
-    <h2> Controllers</h2>
+    <h2>The database module</h2>
 
     <p>
-        HTTP GET requests to <a href="http://localhost:9000/" target="_blank">http://localhost:9000/</a> are handled by the index method defined in the <a href="#code/app/controllers/MainController.java" class="shortcut">MainController.java</a> file.  This static method returns a <strong>Result</strong> which in this case consists of a server-side rendered template and an HTTP 200 response which is represented by the <strong>ok</strong> method call.  You can also use non-static methods along with Dependency Injection frameworks like Spring, Guice, and CDI. <!-- todo:  (<a href="http://TODO" target="_blank">Learn More...</a>) --><br/>
-        You can change the "Hello from Java" string in <a href="#code/app/controllers/MainController.java" class="shortcut">MainController.java</a> a different value, like "Hello from Play", then save the file and reload <a href="http://localhost:9000/" target="_blank">the index page</a> in your browser.  Play will automatically recompile the controller and you should immediately see your changes.<br/>
-        If your changes result in a compile error you will see the error in your browser (after a refresh) and in the <a href="#compile" class="shortcut">Compile Plugin</a>.  Try it by removing one of the double-quotes in the <strong>index</strong> method's string, save the file, and reload the index page.  Fix the error before you continue.<br/>
-        There is also a Scala controller which provides an example JSON service.  (Note: Play also has built-in JSON support in Java controllers.)  You can see the JSON by opening <a href="http://localhost:9000/message" target="_blank">http://localhost:9000/message</a> in your browser.  This route is also mapped in the <a href="#code/conf/routes" class="shortcut">routes</a> file but this time the request is handled by the <a href="#code/app/controllers/MessageController.scala" class="shortcut">MessageController.scala</a> file's <strong>getMessage</strong> function.  This controller returns an <strong>Action</strong> which is responsible for producing a HTTP response.  In this case the response is a <strong>case class</strong> which is serialized to JSON.  You will also notice the <strong>MessageController</strong> contains a function called <strong>javascriptRoutes</strong> which provides a mechanism for using the type-safe routes in JavaScript.
-        <!-- todo: Learn more -->
+        The <a href="#code/app/services/database" class="shortcut">database</a> package also contains a
+        <a href="#code/app/services/database/DatabaseModule.scala" class="shortcut">DatabaseModule</a> trait.
+        In the trait, we define how to create instances of the objects from this package.
+    </p>
+
+    <p>
+        In our case, and as is most common, creating the object graph is just calling <code>new</code> with
+        the right parameters. Here we additionally constrain the type of the <code>database</code> value to be
+        <code>Database</code>, so that clients do not see the underlying implementation type.
+    </p>
+
+    <p>
+        We use <code>lazy val</code>s, so that we don't have to worry about initialization order. When using
+        <code>val</code>s, objects have to be defined prior to usage. This can lead to weird
+        <code>NullPointerException</code>s, hence if possible just use <code>lazy val</code>s or <code>def</code>s.
+    </p>
+
+    <p>
+        In smaller applications, we could define the <em>wiring</em> (how the object graph is constructed) in one place
+        for all packages, however as the codebase size grows, it can become hard to manage. Hence
+    </p>
+
+    <p>
+        Note that creating such traits is entirely optional, and is not a part of the "core" <em>Dependency Injection</em>
+        pattern. It is simply a way of using Scala's traits to make the code more manageable, and the pattern easier
+        to use.
     </p>
 </div>
 <div>
-    <h2> Templates</h2>
+    <h2>The greetings package</h2>
 
     <p>
-        The <strong>MainController.index</strong> method uses a template which is compiled by Play into a function.  The source is in the <a href="#code/app/views/index.scala.html" class="shortcut">index.scala.html</a> file and is available by calling the <strong>views.html.index.render</strong> function.  This template takes a parameter of a <strong>String</strong> so the compiled function also takes a <strong>String</strong> parameter.  The default templating language in Play is Scala, but a number of other templating languages (like Java, Groovy, and Dust) can also be plugged in.<br/>
-        The <a href="#code/app/views/index.scala.html" class="shortcut">index template</a> uses the <a href="#code/app/views/main.scala.html" class="shortcut">main template</a> by calling the <strong>main</strong> function with the required parameters.<br/>
-        Notice that the templates do not use hard-coded URLs and instead use Play's reverse routing, like:
-        <pre><code>@routes.Assets.at("images/favicon.png")</code></pre>
-        This provides a type-safe way to specify URLs in an application.  If the URL to a file changes, then automatically, the new value will be used throughout all of the URL references.  You can use the reverse router anywhere in your code, like redirects in controllers.<br/>
-        Like controllers (and all source code in Play) you can make changes to templates which triggers a recompile.  Then simply refresh the page to see the changes.  Try it out by making a change to the <a href="#code/app/views/index.scala.html" class="shortcut">index template</a>, saving the file, and then refreshing the <a href="http://localhost:9000/" target="_blank">index page</a> in your browser.
-        <!-- todo: Learn more -->
+        The classes in the greetings package are constructed in a similar way. The form a graph of dependencies (e.g.
+        <a href="#code/app/services/greetings/RandomGreetingsService.scala" class="shortcut">RandomGreetingsService</a> depends on
+        <a href="#code/app/services/greetings/RandomItemChooser.scala" class="shortcut">RandomItemChooser</a>, and the
+        <a href="#code/app/services/greetings/GreetingSaver.scala" class="shortcut">GreetingSaver</a> depends on an
+        instance of a <a href="#code/app/services/database/Database.scala" class="shortcut">Database.scala</a>.
+    </p>
+
+    <p>
+        The code is fairly simple so hopefully it is easy to understand what it does.
     </p>
 </div>
 <div>
-    <h2> Static Assets</h2>
+    <h2>The greetings module</h2>
 
     <p>
-        This application has a route to handle loading static assets from the <a href="#code/public" class="shortcut">public</a> directory:
-        <pre><code>GET /assets/*file controllers.Assets.at(path="/public", file)</code></pre>
-        A request to <a href="http://localhost:9000/assets/images/favicon.png" target="_blank">http://localhost:9000/assets/images/favicon.png</a> will use this route to find the <a href="#code/public/images/favicon.png" class="shortcut">favicon.png</a> file in the <strong>public/images</strong> directory.<br/>
-        You can put any static assets into the public directory and have them accessible in this way.
-        <!-- todo: Learn more -->
+        The <a href="#code/app/services/greetings/GreetingsModule.scala" class="shortcut">GreetingsModule</a> differs in two
+        important ways from the <code>DatabaseModule</code>. Firstly, this module itself depends on the <code>DatabaseModule</code>,
+        as we will need to access the <code>database</code> instance. Thanks to the way Scala traits work we can express
+        module-level dependencies and combine several modules using trait composition.
+    </p>
+
+    <p>
+        The second difference is in the way the object instances are defined: using the <code>wire</code> macro. A macro is
+        a piece of Scala code which is executed at <em>compile time</em>, generating some code. The code is then type-checked
+        and further compiled using standard rules. The <code>wire</code> macro is part of the MacWire library.
+    </p>
+
+    <p>
+        The <code>wire</code> macro will try to generate code to create a new instance of the given class, using as parameters
+        values found in the current scope. For example, <code>wire[RandomGreetingsService]</code> will expand to
+        <code>new RandomGreetingsService(database, randomItemChooser)</code>. Note that this is all done at compile-time - there's
+        no run-time component here! At run-time, all the JVM will see is a <code>new</code> invocation. Moreover, we get
+        compile-time checking that all dependencies of a class are satisfied!
+    </p>
+
+    <p>
+        Wiring using the macro can be useful when classes have several dependencies and enumerating all construction parameters
+        would be tedious. Moreover, the macro can be used only for some objects, others may be created by hand or using some
+        custom code.
     </p>
 </div>
 <div>
-    <h2> Asset Compiler</h2>
+    <h2>The controllers</h2>
 
     <p>
-        Modern web applications often use compilers to generate static assets for the browser.  Play has a built-in asset compiler which can automatically syntax check &amp; minify JavaScript, compile CoffeeScript to JavaScript, and compile LESS to CSS.  You can also plug in other compilers into the Play's asset compiler.<br/>
-        This application contains two example uses of the asset compiler.  The <a href="#code/app/assets/javascripts/index.js" class="shortcut">index.js</a> file will automatically be syntax checked and minified.  The minified version is can be referenced in a template with:
-        <pre><code>&lt;script type='text/javascript'
-src='@routes.Assets.at("javascripts/index.min.js")'&gt;
-&lt;/script&gt;</code></pre>
-        You can also put CoffeeScript files with a <strong>.coffee</strong> extension in the <a href="#code/app/assets/javascripts" class="shortcut">app/assets/javascripts</a> directory to have them automatically compiled and minified.<br/>
-        The <a href="#code/app/assets/stylesheets/index.less" class="shortcut">index.less</a> file will be compiled into both a <strong>index.css</strong> and a <strong>index.min.css</strong> file.
-        <!-- todo: Learn more -->
+        There are two <a href="#code/app/services/controllers" class="shortcut">controllers</a>. Unlike normal Play controllers,
+        these are not <code>object</code>s, but <code>class</code>es, with some dependencies declared in constructors. Apart
+        from that, the controllers are quite regular.
+    </p>
+
+    <p>
+        The first controller, <a href="#code/app/services/controllers/MainController.scala" class="shortcut">MainController</a>,
+        is used to get a random greeting. The second controller,
+        <a href="#code/app/services/controllers/AddGreetingController.scala" class="shortcut">AddGreetingController</a>,
+        adds a new greeting to the database.
+    </p>
+
+    <p>
+        The frontend for the application is also quite standard, take a look at
+        <a href="#code/app/views" class="shortcut">app/views</a> and
+        <a href="#code/assets/javascripts/index.js" class="shortcut">assets/javascripts/index.js</a> if you are curious, but
+        there's nothing Dependency Injection/MacWire-specific in these files.
     </p>
 </div>
 <div>
-    <h2> Test the App</h2>
+    <h2>Integrating the controllers</h2>
 
     <p>
-        This application includes a number of tests which are automatically run after each successful compile.  You can see the test results in the <a href="#test" class="shortcut">Test plugin</a>.  Due to changes that you may have made to your application source code, some of the tests might now be failing.  The source for the tests is located in the <a href="#code/test" class="shortcut">test</a> directory and contains both Java and Scala tests.  The <a href="#code/test/MainControllerTest.java" class="shortcut">test/MainControllerTest.java</a> Java class contains a number of unit and functional tests for the <strong>MainController</strong>.  The <a href="#code/test/IntegrationTest.java" class="shortcut">IntegrationTest.java</a> file contains an test which uses Solenium to test the actual UI in a browser.  The default testing framework for Java in Play is JUnit, but you can plug any testing framework in.<br/>
-        The <a href="#code/test/MessageControllerSpec.scala" class="shortcut">MessageControllerSpec.scala</a> file contains a functional test for the <strong>MessageController</strong>.<br/>
-        If you modify a test and save the changes, then the tests will automatically be re-run.
-        <!-- todo: Learn more -->
+        The controllers are wired using the approach we've seen before in the
+        <a href="#code/app/Application.scala" class="shortcut">Application</a> object. The object depends on the two
+        modules we defined earlier, hence when wiring the controllers, the necessary parameters are available.
+    </p>
+
+    <p>
+        The last missing piece in the puzzle is how to tell Play how to obtain instances of the controllers? Firstly, we
+        have to reference controllers in the  <a href="#code/conf/routes" class="shortcut">conf/routes</a> file with the
+        <code>@</code> prefix. This will cause Play to delegate looking up instances of controllers to a special class.
+    </p>
+
+    <p>
+        That special class is <a href="#code/app/Global.scala" class="shortcut">Global</a>. The method that is called by
+        Play is <code>getControllerInstance</code>, passing a <code>Class</code> corresponding to the controller that
+        needs to be looked up. Hence we need a map translating classes to instances.
+    </p>
+
+    <p>
+        MacWire contains a utility macro to generate such a map: <code>valsByClass(someObject)</code>. The macro
+        will generate (again at compile-time) a map of all the <code>val</code>s in the given object, keyed by their
+        classes. Finally, we are using the <code>InstanceLookup</code> helper class from MacWire, to be able to lookup
+        instances taking into account super-classes and traits (e.g., our database instance will be keyed in the map using the
+        <code>InMemoryDatabase</code> class, but we are looking it up using the trait it implements, <code>Database</code>).
     </p>
 </div>
 <div>
-    <h2> SBT Build</h2>
+    <h2>Testing</h2>
 
     <p>
-        SBT is the build system underneath Play applications.  It is responsible for resolving dependencies, compiling the project, running the tests, etc.  The primary build definition file is the <a href="#code/project/Build.scala" class="shortcut">Build.scala</a> file.  In that file you will see a comma-seperated list of dependencies which can be modified to suit your needs.  Play includes a number of libraries which can selectively be turned on/off.  For instance if you want to use JPA with Play, uncomment the <strong>javaJpa</strong> dependency.  You can also add your own dependencies in the SBT form:
-        <pre><code>"group" % "artifact" % "version"</code></pre>
-        <!-- todo: Learn more -->
+        A very important aspect of our application is testing. One of the main benefits of <em>Dependency Injection</em>
+        is the ease with which you can test components in isolation, passing in alternative implementations of any
+        of the class dependencies.
+    </p>
+
+    <p>
+        As an example, take a look at
+        <a href="#code/test/services/greetings/GreetingsSaverSpec.scala" class="shortcut">GreetingsSaverSpec</a>.
+        Here we are using a mock <code>Database</code>, using a great mocking framework Mockito. Instead of providing
+        a real database implementation, we only provide a mock instance, which records what calls where made to it.
+        We can then verify that the desired interactions happened.
+    </p>
+
+    <p>
+        Using the trait-as-modules approach, it is also possible to integration-test whole packages, by instantiating the
+        module trait. Alternative implementations can be then provided by overriding the appropriate <code>val</code>s.
     </p>
 </div>
 <div>
-    <h2> Further Learning</h2>
+    <h2>The End</h2>
 
     <p>
-        The <a href="http://www.playframework.com/documentation" target="_blank">Play Documentation</a> contains much more exhaustive details and also covers a number of other topics which haven't been addressed in this tutorial.<br/>
-        <a href="http://stackoverflow.com" target="_blank">StackOverflow</a> is a great place ask questions about Play.<br/>
-        <a href="http://groups.google.com/group/play-framework" target="_blank">The play-framework</a> Google Group is a great place to discuss Play.<br/>
+        And that's it! We have now a simple Play application, which uses <em>Dependency Injection</em> for wiring the
+        services and controllers.
     </p>
+
+    <p>
+        The whole integration layer doesn't use reflection, only type-safe, compile-time code generation. And we're only
+        using plain, old Scala traits and classes, without the help of any framework.
+    </p>
+
+    <p>
+        If you are interested, a couple of useful links:
+    </p>
+
+    <ul>
+        <li><a href="http://www.playframework.com/documentation" target="_blank">Play Documentation</a></li>
+        <li><a href="https://github.com/adamw/macwire" target="_blank">The MacWire project on GitHub</a></li>
+        <li><a href="https://code.google.com/p/mockito/" target="_blank">Mockito - Simple Mocking Framework</a></li>
+    </ul>
 </div>
 </body>
 </html>

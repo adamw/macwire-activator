@@ -18,12 +18,12 @@ object ApplicationBuild extends Build {
     //javaCore,  // The core Java API
   
     // WebJars pull in client-side web libraries
-    "org.webjars" %% "webjars-play" % "2.1.0-3",
+    "org.webjars" %% "webjars-play" % "2.2.0",
     "org.webjars" % "bootstrap" % "2.3.1",
   
     // Add your own project dependencies in the form:
     // "group" % "artifact" % "version"
-    "com.softwaremill.macwire" %% "core" % "0.4",
+    "com.softwaremill.macwire" %% "macros" % "0.5",
     "org.mockito" % "mockito-core" % "1.9.5" % "test"
   )
 

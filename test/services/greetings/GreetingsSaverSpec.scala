@@ -21,6 +21,7 @@ class GreetingsSaverSpec extends Specification with Mockito {
 
       // Then
       verify(modules.database).storeValue(Matchers.any(), Matchers.eq("Hello World!"))
+      true
     }
   }
 }

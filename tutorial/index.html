@@ -60,6 +60,17 @@
         can now use <strong>any</strong> <code>AuditLogger</code> implementation, without the need to change the
         code of the <code>InMemoryDatabase</code> class.
     </p>
+
+    <p>
+        The removal of creational concerns from the code leads to less code pollution and increased testability. Very
+        often usage of Dependency Injection is accompanied by a framework, such as
+        <a href="https://code.google.com/p/google-guice/">Guice</a>, <a href="http://spring.io/">Spring</a> or
+        <a href="https://github.com/dickwall/subcut">Subcut</a>. However, a framework is not required, and as this
+        tutorial demonstrates, Scala language features can be used instead. Also, the mentioned frameworks most often
+        rely on run-time reflection and hence provide less type safety. That said, they offer some advanced features
+        which are not possible to achieve only with Scala/MacWire. For a more detailed comparision, please refer to the
+        blogs mentioned at the end of the tutorial
+    </p>
 </div>
 <div>
     <h2>The database module</h2>

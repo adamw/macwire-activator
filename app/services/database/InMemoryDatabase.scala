@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 class InMemoryDatabase(auditLogger: AuditLogger) extends Database {
   private val map = new ConcurrentHashMap[String, String]().asScala
 
-  def storeValue(key: String, value: String) {
+  def storeValue(key: String, value: String): Unit = {
     auditLogger.logOperation(s"For key $key storing value $value")
     map(key) = value
   }

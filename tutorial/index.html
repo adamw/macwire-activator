@@ -10,11 +10,11 @@
 
     <p>
         The main functionality of the application is to greet the user using a random greeting from an in-memory database.
-        New greetings can be added by the user using a simple wbe form.
+        New greetings can be added by the user using a simple web form.
     </p>
 
     <p>
-        The task is quite simple, and the code is probably a bit too complicated for such a simple functionality, but it
+        The task is quite simple and the code is probably a bit too complicated for such a simple functionality, but it
         should serve demo purposes well.
     </p>
 
@@ -67,7 +67,7 @@
     <p>
         The <a href="#code/app/services/database" class="shortcut">database</a> package also contains a
         <a href="#code/app/services/database/DatabaseModule.scala" class="shortcut">DatabaseModule</a> trait.
-        In the trait, we define how to create instances of the objects from this package.
+        In the trait we define how to create instances of the objects from this package.
     </p>
 
     <p>
@@ -80,21 +80,21 @@
 
     <p>
         We use <code>lazy val</code>s, so that we don't have to worry about initialization order. When using
-        <code>val</code>s, objects have to be defined prior to usage. This can lead to weird
+        <code>val</code>s objects have to be defined prior to usage. This can lead to weird
         <code>NullPointerException</code>s, hence if possible just use <code>lazy val</code>s or <code>def</code>s.
     </p>
 
     <h3>Trait-modules are optional</h3>
 
     <p>
-        In smaller applications, we could define the <strong>wiring</strong> (how the object graph is constructed) in one
+        In smaller applications we could define the <strong>wiring</strong> (how the object graph is constructed) in one
         trait/object for all packages, however as the codebase size grows, it can become hard to manage, hence splitting
         into several "modules" may be a good idea. The <strong>cake pattern</strong> takes this idea even further,
         putting also class definitions into the traits.
     </p>
 
     <p>
-        Note that creating such traits is entirely optional, and is not a part of the "core" <strong>Dependency Injection</strong>
+        Note that creating such traits is entirely optional and is not a part of the "core" <strong>Dependency Injection</strong>
         pattern. It is simply a way of using Scala's traits to make the code more manageable, and the pattern easier
         to use.
     </p>
@@ -145,7 +145,7 @@
 
     <p>
         Wiring using the macro can be useful when classes have several dependencies and enumerating all construction parameters
-        would be tedious. Moreover, the macro can be used only for some objects, others may be created by hand or using
+        would be tedious. Moreover the macro can be used only for some objects, others may be created by hand or using
         more complex custom code.
     </p>
 </div>

@@ -4,7 +4,6 @@ import org.specs2.mutable._
 
 import org.specs2.mock.Mockito
 import services.database.Database
-import org.mockito.Mockito._
 import org.mockito.Matchers
 
 class GreetingsSaverSpec extends Specification with Mockito {
@@ -20,8 +19,7 @@ class GreetingsSaverSpec extends Specification with Mockito {
       modules.greetingsSaver.saveGreetings("Hello World!")
 
       // Then
-      verify(modules.database).storeValue(Matchers.any(), Matchers.eq("Hello World!"))
-      true
+      there was one(modules.database).storeValue(Matchers.any(), Matchers.eq("Hello World!"))
     }
   }
 }

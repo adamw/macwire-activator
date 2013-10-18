@@ -1,10 +1,9 @@
 package services.database
 
-import scala.collection.JavaConverters._
-import java.util.concurrent.ConcurrentHashMap
+import scala.collection.concurrent.TrieMap
 
 class InMemoryDatabase(auditLogger: AuditLogger) extends Database {
-  private val map = new ConcurrentHashMap[String, String]().asScala
+  private val map = new TrieMap[String, String]()
 
   def storeValue(key: String, value: String): Unit = {
     auditLogger.logOperation(s"For key $key storing value $value")

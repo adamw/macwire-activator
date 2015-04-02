@@ -6,5 +6,6 @@ How to do container-less Dependency Injection in Play! and other frameworks with
 
 Links:
 
+* [Guide to Dependency Injection in Scala](http://di-in-scala.github.io)
 * [The MacWire project on GitHub](https://www.github.com/adamw/macwire)
 * [Blog: Dependency Injection in Play! with MacWire](http://www.warski.org/blog/2013/08/dependency-injection-in-play-with-macwire/)

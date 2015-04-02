@@ -9,6 +9,6 @@ scalaVersion := "2.11.6"
 libraryDependencies ++= Seq(
     "org.webjars" %% "webjars-play" % "2.3.0-2",
     "org.webjars" % "bootstrap" % "3.3.4",
-    "com.softwaremill.macwire" %% "macros" % "1.0.0",
+    "com.softwaremill.macwire" %% "macros" % "1.0.1",
     "org.mockito" % "mockito-core" % "1.10.19" % "test"
 )

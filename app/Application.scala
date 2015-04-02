@@ -1,6 +1,6 @@
 import controllers.{AddGreetingController, MainController}
 
-import com.softwaremill.macwire.MacwireMacros._
+import com.softwaremill.macwire._
 import services.database.DatabaseModule
 import services.greetings.GreetingsModule
 

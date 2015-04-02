@@ -1,6 +1,6 @@
 package services.greetings
 
-import com.softwaremill.macwire.MacwireMacros._
+import com.softwaremill.macwire._
 import services.database.DatabaseModule
 
 trait GreetingsModule extends DatabaseModule {

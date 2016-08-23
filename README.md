@@ -1,5 +1,10 @@
-Play+MacWire Activator
-======================
+Newer Activator available
+=========================
+
+For an activator using Play 2.5+, please see the [play-macwire-di](https://github.com/playframework/play-macwire-di).
+
+Play 2.3+MacWire Activator
+==========================
 
 How to do container-less Dependency Injection in Play! and other frameworks with #MacWire? Try this
 [Activator](http://www.typesafe.com/activator/template/macwire-activator).
